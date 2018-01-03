@@ -30,6 +30,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void
@@ -41,7 +42,7 @@ mpz_random2 (mpz_ptr x, mp_size_t size)
   abs_size = ABS (size);
   if (abs_size != 0)
     {
-      xp = MPZ_NEWALLOC (x, abs_size);
+      xp = MPZ_REALLOC (x, abs_size);
 
       mpn_random2 (xp, abs_size);
     }

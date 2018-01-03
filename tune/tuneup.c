@@ -1,6 +1,6 @@
 /* Create tuned thresholds for various algorithms.
 
-Copyright 1999-2003, 2005, 2006, 2008-2017 Free Software Foundation, Inc.
+Copyright 1999-2003, 2005, 2006, 2008-2012 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -120,6 +120,7 @@ see https://www.gnu.org/licenses/.  */
 #include <unistd.h>
 #endif
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -1194,60 +1195,6 @@ fft (struct fft_param_t *p)
     }
 }
 
-/* Compare mpn_mul_1 to whatever fast exact single-limb division we have.  This
-   is currently mpn_divexact_1, but will become mpn_bdiv_1_qr_pi2 or somesuch.
-   This is used in get_str and set_str.  */
-void
-relspeed_div_1_vs_mul_1 (void)
-{
-  const size_t max_opsize = 100;
-  mp_size_t n;
-  long j;
-  mp_limb_t rp[max_opsize];
-  mp_limb_t ap[max_opsize];
-  double multime, divtime;
-
-  mpn_random (ap, max_opsize);
-
-  multime = 0;
-  for (n = max_opsize; n > 1; n--)
-    {
-      mpn_mul_1 (rp, ap, n, MP_BASES_BIG_BASE_10);
-      speed_starttime ();
-      for (j = speed_precision; j != 0 ; j--)
-	mpn_mul_1 (rp, ap, n, MP_BASES_BIG_BASE_10);
-      multime += speed_endtime () / n;
-    }
-
-  divtime = 0;
-  for (n = max_opsize; n > 1; n--)
-    {
-      /* Make input divisible for good measure.  */
-      ap[n - 1] = mpn_mul_1 (ap, ap, n - 1, MP_BASES_BIG_BASE_10);
-
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1 || ! HAVE_NATIVE_mpn_divexact_1
-	  mpn_pi1_bdiv_q_1 (rp, ap, n, MP_BASES_BIG_BASE_10,
-			    MP_BASES_BIG_BASE_BINVERTED_10,
-			    MP_BASES_BIG_BASE_CTZ_10);
-#else
-	  mpn_divexact_1 (rp, ap, n, MP_BASES_BIG_BASE_10);
-#endif
-      speed_starttime ();
-      for (j = speed_precision; j != 0 ; j--)
-	{
-#if HAVE_NATIVE_mpn_pi1_bdiv_q_1 || ! HAVE_NATIVE_mpn_divexact_1
-	  mpn_pi1_bdiv_q_1 (rp, ap, n, MP_BASES_BIG_BASE_10,
-			    MP_BASES_BIG_BASE_BINVERTED_10,
-			    MP_BASES_BIG_BASE_CTZ_10);
-#else
-	  mpn_divexact_1 (rp, ap, n, MP_BASES_BIG_BASE_10);
-#endif
-	}
-      divtime += speed_endtime () / n;
-    }
-
-  print_define ("DIV_1_VS_MUL_1_PERCENT", (int) (100 * divtime/multime));
-}
 
 
 /* Start karatsuba from 4, since the Cray t90 ieee code is much faster at 2,
@@ -1408,7 +1355,7 @@ tune_mullo (void)
   param.function = speed_mpn_mullo_n;
 
   param.name = "MULLO_BASECASE_THRESHOLD";
-  param.min_size = 2;
+  param.min_size = 1;
   param.min_is_always = 1;
   param.max_size = MULLO_BASECASE_THRESHOLD_LIMIT-1;
   param.stop_factor = 1.5;
@@ -1454,7 +1401,7 @@ tune_sqrlo (void)
   param.function = speed_mpn_sqrlo;
 
   param.name = "SQRLO_BASECASE_THRESHOLD";
-  param.min_size = 2;
+  param.min_size = 1;
   param.min_is_always = 1;
   param.max_size = SQRLO_BASECASE_THRESHOLD_LIMIT-1;
   param.stop_factor = 1.5;
@@ -2731,16 +2678,15 @@ speed_mpn_pre_set_str (struct speed_params *s)
 
   chars_per_limb = mp_bases[base].chars_per_limb;
   un = s->size / chars_per_limb + 1;
-  powtab_mem = TMP_BALLOC_LIMBS (mpn_str_powtab_alloc (un));
-  size_t n_pows = mpn_compute_powtab (powtab, powtab_mem, un, base);
-  powers_t *pt = powtab + n_pows;
+  powtab_mem = TMP_BALLOC_LIMBS (mpn_dc_set_str_powtab_alloc (un));
+  mpn_set_str_compute_powtab (powtab, powtab_mem, un, base);
   tp = TMP_BALLOC_LIMBS (mpn_dc_set_str_itch (un));
 
   speed_starttime ();
   i = s->reps;
   do
     {
-      mpn_pre_set_str (wp, str, s->size, pt, tp);
+      mpn_pre_set_str (wp, str, s->size, powtab, tp);
     }
   while (--i != 0);
   t = speed_endtime ();
@@ -2915,9 +2861,6 @@ all (void)
   tune_div_qr_2 ();
   tune_divexact_1 ();
   tune_modexact_1_odd ();
-  printf("\n");
-
-  relspeed_div_1_vs_mul_1 ();
   printf("\n");
 
   tune_mul_n ();

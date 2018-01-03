@@ -19,6 +19,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include <sstream>
 
+#include "gmp.h"
 #include "gmpxx.h"
 #include "gmp-impl.h"
 #include "tests.h"

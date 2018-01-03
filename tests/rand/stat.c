@@ -39,6 +39,7 @@ Test 1000 integers 0 <= X <= 2^34-1.
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include "gmp.h"
 #include "gmpstat.h"
 
 #if !HAVE_DECL_OPTARG

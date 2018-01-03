@@ -32,6 +32,7 @@ see https://www.gnu.org/licenses/.  */
    That is not perfect, mainly due to vector register shortage.  */
 
 #include <intrinsics.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void

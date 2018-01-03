@@ -31,11 +31,10 @@ dnl  see https://www.gnu.org/licenses/.
 include(`../config.m4')
 
 C	     cycles/limb
-C Cortex-A53	 2.25
-C Cortex-A57	 1.25
-C X-Gene	 1.75
+C Cortex-A53	 ?
+C Cortex-A57	 ?
 
-changecom(blah)
+changecom(@&*$)
 
 define(`rp', `x0')
 define(`up', `x1')

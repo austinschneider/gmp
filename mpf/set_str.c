@@ -54,6 +54,7 @@ see https://www.gnu.org/licenses/.  */
 #include <locale.h>    /* for localeconv */
 #endif
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -324,7 +325,8 @@ mpf_set_str (mpf_ptr x, const char *str, int base)
       }
 
     ra = 2 * (prec + 1);
-    TMP_ALLOC_LIMBS_2 (rp, ra, tp, ra);
+    rp = TMP_ALLOC_LIMBS (ra);
+    tp = TMP_ALLOC_LIMBS (ra);
     rn = mpn_pow_1_highpart (rp, &radj, (mp_limb_t) base, exp_in_base, prec, tp);
 
     if (divflag)

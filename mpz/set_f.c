@@ -28,6 +28,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 
@@ -46,7 +47,7 @@ mpz_set_f (mpz_ptr w, mpf_srcptr u)
       return;
     }
 
-  wp = MPZ_NEWALLOC (w, exp);
+  wp = MPZ_REALLOC (w, exp);
   up = PTR(u);
 
   size = SIZ (u);

@@ -21,6 +21,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "tests.h"
 
@@ -51,6 +52,7 @@ main (int argc, char **argv)
 {
   mp_ptr ap, bp, rp, refp;
   mp_size_t max_n, an, bn, rn;
+  gmp_randstate_ptr rands;
   int reps;
   TMP_DECL;
   TMP_MARK;
@@ -59,6 +61,8 @@ main (int argc, char **argv)
 
   tests_start ();
   TESTS_REPS (reps, argv, argc);
+
+  rands = RANDS;
 
   /* Re-interpret reps argument as a size argument.  */
   max_n = isqrt (reps * 25000);

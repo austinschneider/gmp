@@ -1,4 +1,4 @@
-dnl  ARM v4 mpn_divexact_1.
+dnl  ARM v4 mpn_modexact_1c_odd
 
 dnl  Contributed to the GNU project by Torbjorn Granlund.
 
@@ -96,23 +96,23 @@ L(inv):	LEA(	r4, binvert_limb_table)
 
 L(norm):
 	subs	n, n, #1		C set carry as side-effect
-	beq	L(edn)
+	beq	L(end)
 
 	ALIGN(16)
-L(tpn):	sbcs	cy, r5, cy
+L(top):	sbcs	cy, r5, cy
 	ldr	r5, [up], #4
 	sub	n, n, #1
 	mul	r9, r4, cy
 	tst	n, n
 	umull	r12, cy, d, r9
 	str	r9, [rp], #4
-	bne	L(tpn)
+	bne	L(top)
 
-L(edn):	sbc	cy, r5, cy
+L(end):	sbc	cy, r5, cy
 	mul	r9, r4, cy
 	str	r9, [rp]
 	pop	{r4-r9}
-	return	r14
+	ret	r14
 
 L(unnorm):
 	rsb	tnc, cnt, #32
@@ -136,7 +136,7 @@ L(edu):	sbc	cy, r5, cy
 	mul	r9, r4, cy
 	str	r9, [rp]
 	pop	{r4-r9}
-	return	r14
+	ret	r14
 EPILOGUE()
 
 	RODATA

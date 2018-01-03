@@ -63,7 +63,7 @@ define(X86_PATTERN,
 [[i?86*-*-* | k[5-8]*-*-* | pentium*-*-* | athlon-*-* | viac3*-*-* | geode*-*-* | atom-*-*]])
 
 define(X86_64_PATTERN,
-[[athlon64-*-* | k8-*-* | k10-*-* | bobcat-*-* | jaguar*-*-* | bulldozer*-*-* | piledriver*-*-* | steamroller*-*-* | excavator*-*-* | zen*-*-* | pentium4-*-* | atom-*-* | silvermont-*-* | goldmont-*-* | core2-*-* | corei*-*-* | x86_64-*-* | nano-*-* | nehalem*-*-* | westmere*-*-* | sandybridge*-*-* | ivybridge*-*-* | haswell*-*-* | broadwell*-*-* | skylake*-*-* | kabylake*-*-*]])
+[[athlon64-*-* | k8-*-* | k10-*-* | bobcat-*-* | jaguar*-*-* | bulldozer*-*-* | piledriver*-*-* | steamroller*-*-* | excavator*-*-* | pentium4-*-* | atom-*-* | silvermont-*-* | goldmont-*-* | core2-*-* | corei*-*-* | x86_64-*-* | nano-*-* | nehalem*-*-* | westmere*-*-* | sandybridge*-*-* | ivybridge*-*-* | haswell*-*-* | broadwell*-*-* | skylake*-*-* | kabylake*-*-*]])
 
 dnl  GMP_FAT_SUFFIX(DSTVAR, DIRECTORY)
 dnl  ---------------------------------
@@ -741,7 +741,7 @@ main ()
   long i;
   for (i = 0; i < 88 + 1; i++)
     a[i] = ~0L;
-  r = calloc (10000, sizeof (unsigned long));
+  r = malloc (10000 * sizeof (unsigned long));
   r2 = r;
   for (i = 0; i < 528; i += 23)
     {
@@ -1803,8 +1803,8 @@ AC_REQUIRE([GMP_PROG_NM])
 AC_CACHE_CHECK([if .align assembly directive is logarithmic],
                gmp_cv_asm_align_log,
 [GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_data
-	.align  4
+[      	$gmp_cv_asm_data
+      	.align  4
 	$gmp_cv_asm_globl	foo
 	$gmp_cv_asm_byte	1
 	.align	4
@@ -1858,10 +1858,10 @@ AC_DEFUN([GMP_ASM_ALIGN_FILL_0x90],
 AC_CACHE_CHECK([if the .align directive accepts an 0x90 fill in .text],
                gmp_cv_asm_align_fill_0x90,
 [GMP_TRY_ASSEMBLE(
-[	$gmp_cv_asm_text
-	.align  4, 0x90
+[      	$gmp_cv_asm_text
+      	.align  4, 0x90
 	.byte   0
-	.align  4, 0x90],
+      	.align  4, 0x90],
 [if grep "Warning: Fill parameter ignored for executable section" conftest.out >/dev/null; then
   echo "Suppressing this warning by omitting 0x90" 1>&AC_FD_CC
   gmp_cv_asm_align_fill_0x90=no
@@ -3404,7 +3404,7 @@ BEGIN {
           got[12] == "124" &&  \
           got[13] == "000" &&  \
           got[14] == "000" &&  \
-          got[15] == "000")
+	  got[15] == "000")
         {
           print "IEEE big endian"
           found = 1

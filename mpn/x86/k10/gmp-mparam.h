@@ -50,8 +50,6 @@ see https://www.gnu.org/licenses/.  */
 #define DIVEXACT_1_THRESHOLD                 0  /* always (native) */
 #define BMOD_1_TO_MOD_1_THRESHOLD           32
 
-#define DIV_1_VS_MUL_1_PERCENT             269
-
 #define MUL_TOOM22_THRESHOLD                24
 #define MUL_TOOM33_THRESHOLD                81
 #define MUL_TOOM44_THRESHOLD               130
@@ -199,14 +197,6 @@ see https://www.gnu.org/licenses/.  */
 
 #define POWM_SEC_TABLE  1,16,114,428,1240
 
-#define GET_STR_DC_THRESHOLD                15
-#define GET_STR_PRECOMPUTE_THRESHOLD        28
-#define SET_STR_DC_THRESHOLD               100
-#define SET_STR_PRECOMPUTE_THRESHOLD      1360
-
-#define FAC_DSC_THRESHOLD                  224
-#define FAC_ODD_THRESHOLD                   29
-
 #define MATRIX22_STRASSEN_THRESHOLD         19
 #define HGCD_THRESHOLD                     136
 #define HGCD_APPR_THRESHOLD                175
@@ -214,3 +204,11 @@ see https://www.gnu.org/licenses/.  */
 #define GCD_DC_THRESHOLD                   595
 #define GCDEXT_DC_THRESHOLD                424
 #define JACOBI_BASE_METHOD                   4
+
+#define GET_STR_DC_THRESHOLD                15
+#define GET_STR_PRECOMPUTE_THRESHOLD        28
+#define SET_STR_DC_THRESHOLD               100
+#define SET_STR_PRECOMPUTE_THRESHOLD      1360
+
+#define FAC_DSC_THRESHOLD                  224
+#define FAC_ODD_THRESHOLD                   29

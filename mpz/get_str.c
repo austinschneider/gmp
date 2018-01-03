@@ -4,8 +4,8 @@
    result.  If STRING is not NULL, the caller must ensure enough space is
    available to store the result.
 
-Copyright 1991, 1993, 1994, 1996, 2000-2002, 2005, 2012, 2017 Free
-Software Foundation, Inc.
+Copyright 1991, 1993, 1994, 1996, 2000-2002, 2005, 2012 Free Software
+Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -34,6 +34,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 #include <string.h> /* for strlen */
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -49,23 +50,26 @@ mpz_get_str (char *res_str, int base, mpz_srcptr x)
   int i;
   TMP_DECL;
 
-  num_to_text = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  if (base > 1)
+  if (base >= 0)
     {
-      if (base <= 36)
-	num_to_text = "0123456789abcdefghijklmnopqrstuvwxyz";
-      else if (UNLIKELY (base > 62))
-	return NULL;
-    }
-  else if (base > -2)
-    {
-      base = 10;
+      num_to_text = "0123456789abcdefghijklmnopqrstuvwxyz";
+      if (base <= 1)
+	base = 10;
+      else if (base > 36)
+	{
+	  num_to_text = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	  if (base > 62)
+	    return NULL;
+	}
     }
   else
     {
       base = -base;
-      if (UNLIKELY (base > 36))
+      if (base <= 1)
+	base = 10;
+      else if (base > 36)
 	return NULL;
+      num_to_text = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     }
 
   /* allocate string for the user if necessary */
@@ -74,7 +78,7 @@ mpz_get_str (char *res_str, int base, mpz_srcptr x)
       /* digits, null terminator, possible minus sign */
       MPN_SIZEINBASE (alloc_size, PTR(x), ABS(x_size), base);
       alloc_size += 1 + (x_size<0);
-      res_str = __GMP_ALLOCATE_FUNC_TYPE (alloc_size, char);
+      res_str = (char *) (*__gmp_allocate_func) (alloc_size);
     }
   return_str = res_str;
 

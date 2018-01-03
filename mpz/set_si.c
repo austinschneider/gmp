@@ -1,7 +1,6 @@
 /* mpz_set_si(dest,val) -- Assign DEST with a small value VAL.
 
-Copyright 1991, 1993-1995, 2000-2002, 2012, 2015 Free Software
-Foundation, Inc.
+Copyright 1991, 1993-1995, 2000-2002, 2012 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -29,6 +28,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void
@@ -39,7 +39,7 @@ mpz_set_si (mpz_ptr dest, signed long int val)
 
   vl = (mp_limb_t) ABS_CAST (unsigned long int, val);
 
-  MPZ_NEWALLOC (dest, 1)[0] = vl & GMP_NUMB_MASK;
+  PTR (dest)[0] = vl & GMP_NUMB_MASK;
   size = vl != 0;
 
 #if GMP_NAIL_BITS != 0

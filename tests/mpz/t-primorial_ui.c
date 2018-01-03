@@ -1,6 +1,6 @@
 /* Exercise mpz_primorial_ui.
 
-Copyright 2000-2002, 2012, 2015 Free Software Foundation, Inc.
+Copyright 2000-2002, 2012 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library test suite.
 
@@ -19,6 +19,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "tests.h"
 
@@ -37,11 +38,9 @@ main (int argc, char *argv[])
 {
   unsigned long  n;
   unsigned long  limit = 2222;
-  gmp_randstate_ptr rands;
-  mpz_t          f, r, bs;
+  mpz_t          f, r;
 
   tests_start ();
-  rands = RANDS;
 
   if (argc > 1 && argv[1][0] == 'x')
     limit = ULONG_MAX;
@@ -54,70 +53,23 @@ main (int argc, char *argv[])
   mpz_init_set_ui (f, 1);  /* 0# = 1 */
   mpz_init (r);
 
-  n = 0;
-  do
+  for (n = 0; n < limit; n++)
     {
       mpz_primorial_ui (r, n);
       MPZ_CHECK_FORMAT (r);
 
       if (mpz_cmp (f, r) != 0)
-	{
-	  printf ("mpz_primorial_ui(%lu) wrong\n", n);
-	  printf ("  got  "); mpz_out_str (stdout, 10, r); printf("\n");
-	  printf ("  want "); mpz_out_str (stdout, 10, f); printf("\n");
-	  abort ();
-	}
+        {
+          printf ("mpz_primorial_ui(%lu) wrong\n", n);
+          printf ("  got  "); mpz_out_str (stdout, 10, r); printf("\n");
+          printf ("  want "); mpz_out_str (stdout, 10, f); printf("\n");
+          abort ();
+        }
 
-      if (isprime (++n))
-	mpz_mul_ui (f, f, n);  /* p# = (p-1)# * (p) */
-      if (n%16 == 0) { mpz_clear (r); mpz_init (r); }
-    } while (n < limit);
-
-  n = 0; limit =1;
-  mpz_init (bs);
-  do
-    {
-      unsigned long i, d;
-
-      mpz_urandomb (bs, rands, 21);
-      i = mpz_get_ui (bs);
-      mpz_urandomb (bs, rands, 9);
-      d = mpz_get_ui (bs) + 3*64;
-      mpz_primorial_ui (f, i);
-      MPZ_CHECK_FORMAT (f);
-      mpz_primorial_ui (r, i+d);
-      MPZ_CHECK_FORMAT (r);
-
-      do {
-	if (isprime (++i))
-	  mpz_mul_ui (f, f, i);
-      } while (--d != 0);
-
-      if (mpz_cmp (f, r) != 0)
-	{
-	  printf ("mpz_primorial_ui(%lu) wrong\n", i);
-	  printf ("  got  "); mpz_out_str (stdout, 10, r); printf("\n");
-	  printf ("  want "); mpz_out_str (stdout, 10, f); printf("\n");
-	  abort ();
-	}
-    } while (++n < limit);
-  /* Chech a single "big" value, modulo a larger prime */
-  n = 2095637;
-  mpz_primorial_ui (r, n);
-  mpz_set_ui (f, 13);
-  mpz_setbit (f, 64); /* f = 2^64 + 13 */
-  mpz_tdiv_r (r, r, f);
-  mpz_set_str (f, "BAFCBF3C95B217D5", 16);
-
-  if (mpz_cmp (f, r) != 0)
-    {
-      printf ("mpz_primorial_ui(%lu) wrong\n", n);
-      printf ("  got  "); mpz_out_str (stdout, 10, r); printf("\n");
-      printf ("  want "); mpz_out_str (stdout, 10, f); printf("\n");
-      abort ();
+      if (isprime (n+1))
+	mpz_mul_ui (f, f, n+1);  /* p# = (p-1)# * (p) */
     }
 
-  mpz_clear (bs);
   mpz_clear (f);
   mpz_clear (r);
 

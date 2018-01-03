@@ -34,7 +34,7 @@ C	     cycles/limb
 C Cortex-A53	 ?
 C Cortex-A57	 ?
 
-changecom(blah)
+changecom(@&*$)
 
 define(`rp', `x0')
 define(`up', `x1')
@@ -58,9 +58,9 @@ C Copy until rp is 128-bit aligned
 
 L(al2):	sub	up, up, #16
 	ld1	{v26.2d}, [up]
-	sub	n, n, #6
+	subs	n, n, #6
 	sub	rp, rp, #16			C offset rp for loop
-	tbnz	n, #63, L(end)
+	b.lt	L(end)
 
 	sub	up, up, #16			C offset up for loop
 	mov	x12, #-16
@@ -70,8 +70,8 @@ L(top):	ld1	{v22.2d}, [up], x12
 	st1	{v26.2d}, [rp], x12
 	ld1	{v26.2d}, [up], x12
 	st1	{v22.2d}, [rp], x12
-	sub	n, n, #4
-	tbz	n, #63, L(top)
+	subs	n, n, #4
+	b.ge	L(top)
 
 	add	up, up, #16			C undo up offset
 

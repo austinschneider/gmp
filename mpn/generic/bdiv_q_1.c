@@ -5,7 +5,7 @@
    CERTAIN TO BE SUBJECT TO INCOMPATIBLE CHANGES OR DISAPPEAR COMPLETELY IN
    FUTURE GNU MP RELEASES.
 
-Copyright 2000-2003, 2005, 2009, 2017 Free Software Foundation, Inc.
+Copyright 2000-2003, 2005, 2009 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -33,6 +33,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -73,10 +74,9 @@ mpn_pi1_bdiv_q_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t d,
 	}
 
       u = u >> shift;
-      SUBC_LIMB (c, l, u, c);
-
+      l = u - c;
       l = (l * di) & GMP_NUMB_MASK;
-      rp[n] = l;
+      rp[i] = l;
     }
   else
     {
@@ -113,8 +113,13 @@ mpn_bdiv_q_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t d)
   ASSERT_MPN (up, n);
   ASSERT_LIMB (d);
 
-  count_trailing_zeros (shift, d);
-  d >>= shift;
+  if ((d & 1) == 0)
+    {
+      count_trailing_zeros (shift, d);
+      d >>= shift;
+    }
+  else
+    shift = 0;
 
   binvert_limb (di, d);
   return mpn_pi1_bdiv_q_1 (rp, up, n, d, di, shift);

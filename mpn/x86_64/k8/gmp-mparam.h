@@ -1,6 +1,6 @@
 /* AMD K8 gmp-mparam.h -- Compiler/machine parameter header file.
 
-Copyright 2017 Free Software Foundation, Inc.
+Copyright 1991, 1993, 1994, 2000-2012, 2014 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -54,8 +54,6 @@ see https://www.gnu.org/licenses/.  */
 #define DIVEXACT_1_THRESHOLD                 0  /* always (native) */
 #define BMOD_1_TO_MOD_1_THRESHOLD           16
 
-#define DIV_1_VS_MUL_1_PERCENT             337
-
 #define MUL_TOOM22_THRESHOLD                28
 #define MUL_TOOM33_THRESHOLD                81
 #define MUL_TOOM44_THRESHOLD               242
@@ -69,11 +67,11 @@ see https://www.gnu.org/licenses/.  */
 #define MUL_TOOM43_TO_TOOM54_THRESHOLD     166
 
 #define SQR_BASECASE_THRESHOLD               0  /* always (native) */
-#define SQR_TOOM2_THRESHOLD                 40
-#define SQR_TOOM3_THRESHOLD                126
-#define SQR_TOOM4_THRESHOLD                232
-#define SQR_TOOM6_THRESHOLD                399
-#define SQR_TOOM8_THRESHOLD                430
+#define SQR_TOOM2_THRESHOLD                 34
+#define SQR_TOOM3_THRESHOLD                129
+#define SQR_TOOM4_THRESHOLD                527
+#define SQR_TOOM6_THRESHOLD                562
+#define SQR_TOOM8_THRESHOLD                  0  /* always */
 
 #define MULMID_TOOM42_THRESHOLD             36
 
@@ -199,9 +197,6 @@ see https://www.gnu.org/licenses/.  */
 #define MULLO_BASECASE_THRESHOLD             0  /* always */
 #define MULLO_DC_THRESHOLD                  61
 #define MULLO_MUL_N_THRESHOLD            22906
-#define SQRLO_BASECASE_THRESHOLD            12
-#define SQRLO_DC_THRESHOLD                  13
-#define SQRLO_SQR_THRESHOLD              12322
 
 #define DC_DIV_QR_THRESHOLD                 51
 #define DC_DIVAPPR_Q_THRESHOLD             264
@@ -224,14 +219,6 @@ see https://www.gnu.org/licenses/.  */
 
 #define POWM_SEC_TABLE  2,16,194,904,2177
 
-#define GET_STR_DC_THRESHOLD                17
-#define GET_STR_PRECOMPUTE_THRESHOLD        26
-#define SET_STR_DC_THRESHOLD               268
-#define SET_STR_PRECOMPUTE_THRESHOLD      1652
-
-#define FAC_DSC_THRESHOLD                 1065
-#define FAC_ODD_THRESHOLD                   24
-
 #define MATRIX22_STRASSEN_THRESHOLD         21
 #define HGCD_THRESHOLD                     148
 #define HGCD_APPR_THRESHOLD                185
@@ -239,3 +226,11 @@ see https://www.gnu.org/licenses/.  */
 #define GCD_DC_THRESHOLD                   562
 #define GCDEXT_DC_THRESHOLD                501
 #define JACOBI_BASE_METHOD                   4
+
+#define GET_STR_DC_THRESHOLD                17
+#define GET_STR_PRECOMPUTE_THRESHOLD        29
+#define SET_STR_DC_THRESHOLD               268
+#define SET_STR_PRECOMPUTE_THRESHOLD      1787
+
+#define FAC_DSC_THRESHOLD                 1240
+#define FAC_ODD_THRESHOLD                    0  /* always */

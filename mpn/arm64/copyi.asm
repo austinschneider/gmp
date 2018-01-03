@@ -31,11 +31,10 @@ dnl  see https://www.gnu.org/licenses/.
 include(`../config.m4')
 
 C	     cycles/limb
-C Cortex-A53	 2
-C Cortex-A57	 1
-C X-Gene	 1.25
+C Cortex-A53	 ?
+C Cortex-A57	 ?
 
-changecom(blah)
+changecom(@&*$)
 
 define(`rp', `x0')
 define(`up', `x1')
@@ -53,16 +52,16 @@ C Copy until rp is 128-bit aligned
 	st1	{v22.1d}, [rp], #8
 
 L(al2):	ld1	{v26.2d}, [up], #16
-	sub	n, n, #6
-	tbnz	n, #63, L(end)
+	subs	n, n, #6
+	b.lt	L(end)
 
 	ALIGN(16)
 L(top):	ld1	{v22.2d}, [up], #16
 	st1	{v26.2d}, [rp], #16
 	ld1	{v26.2d}, [up], #16
 	st1	{v22.2d}, [rp], #16
-	sub	n, n, #4
-	tbz	n, #63, L(top)
+	subs	n, n, #4
+	b.ge	L(top)
 
 L(end):	st1	{v26.2d}, [rp], #16
 

@@ -52,6 +52,7 @@ see https://www.gnu.org/licenses/.  */
      division.
 */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include <string.h>		/* for memset */
 

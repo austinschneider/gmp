@@ -29,6 +29,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 #include <stdarg.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void
@@ -38,12 +39,11 @@ mpf_inits (mpf_ptr x, ...)
 
   va_start (ap, x);
 
-  do
+  while (x != NULL)
     {
       mpf_init (x);
       x = va_arg (ap, mpf_ptr);
     }
-  while (x != NULL);
 
   va_end (ap);
 }

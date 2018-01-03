@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/.  */
 
 #define TUNE_PROGRAM_BUILD  1   /* for gmp-impl.h */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void

@@ -56,6 +56,7 @@ see https://www.gnu.org/licenses/.  */
      slowdown.
 */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 

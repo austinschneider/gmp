@@ -137,6 +137,7 @@ see https://www.gnu.org/licenses/.  */
 #undef MAX
 #endif
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 #include "speed.h"

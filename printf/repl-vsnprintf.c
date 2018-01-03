@@ -63,6 +63,7 @@ see https://www.gnu.org/licenses/.  */
 #include <sys/types.h> /* for quad_t */
 #endif
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 

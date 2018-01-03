@@ -8,7 +8,7 @@
    SAFE TO REACH THEM THROUGH DOCUMENTED INTERFACES.  IN FACT, IT IS ALMOST
    GUARANTEED THAT THEY WILL CHANGE OR DISAPPEAR IN A FUTURE GMP RELEASE.
 
-Copyright 2005-2007, 2009, 2010, 2017 Free Software Foundation, Inc.
+Copyright 2005-2007, 2009, 2010 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -44,6 +44,7 @@ see https://www.gnu.org/licenses/.  */
    for developing quotient bits.  This algorithm was presented at ICMS 2006.
 */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 
@@ -65,8 +66,8 @@ see https://www.gnu.org/licenses/.  */
 	  particular, when dn==in, tp and rp could use the same space.
    FIXME: Trim final quotient calculation to qn limbs of precision.
 */
-static void
-mpn_mu_bdiv_q_old (mp_ptr qp,
+void
+mpn_mu_bdiv_q (mp_ptr qp,
 	       mp_srcptr np, mp_size_t nn,
 	       mp_srcptr dp, mp_size_t dn,
 	       mp_ptr scratch)
@@ -224,16 +225,6 @@ mpn_mu_bdiv_q_old (mp_ptr qp,
     }
 }
 
-void
-mpn_mu_bdiv_q (mp_ptr qp,
-	       mp_srcptr np, mp_size_t nn,
-	       mp_srcptr dp, mp_size_t dn,
-	       mp_ptr scratch)
-{
-  mpn_mu_bdiv_q_old (qp, np, nn, dp, dn, scratch);
-  mpn_neg (qp, qp, nn);
-}
-
 mp_size_t
 mpn_mu_bdiv_q_itch (mp_size_t nn, mp_size_t dn)
 {
@@ -279,3 +270,4 @@ mpn_mu_bdiv_q_itch (mp_size_t nn, mp_size_t dn)
   itch_binvert = mpn_binvert_itch (in);
   return in + MAX (itches, itch_binvert);
 }
+

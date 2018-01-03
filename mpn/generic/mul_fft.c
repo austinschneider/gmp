@@ -66,6 +66,7 @@ see https://www.gnu.org/licenses/.  */
 #define TRACE(x)
 #endif
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 #ifdef WANT_ADDSUB

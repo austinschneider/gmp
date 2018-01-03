@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/.  */
 #include <stdlib.h>   /* for getenv */
 #include <string.h>
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 /* Change this to "#define TRACE(x) x" for some traces. */
@@ -434,7 +435,7 @@ __gmpn_cpuvec_init (void)
               TRACE (printf ("  bobcat\n"));
               CPUVEC_SETUP_k7;
               CPUVEC_SETUP_k7_mmx;
-              CPUVEC_SETUP_bt1;
+              CPUVEC_SETUP_bobcat;
 	      break;
 
             case 0x15:		/* bulldozer */

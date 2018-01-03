@@ -19,13 +19,12 @@
 
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/tests
-AM_LDFLAGS = -no-install
 LDADD = $(top_builddir)/tests/libtests.la $(top_builddir)/libgmp.la
 
 # add_n_sub_n add_n_sub_n_2 not yet built since mpn_add_n_sub_n doesn't yet exist
 #
 EXTRA_PROGRAMS = \
-  aors_n anymul_1 copy divmod_1 divrem shift logops_n sqrtrem_1_2 tst-addsub try
+  aors_n anymul_1 copy divmod_1 divrem shift logops_n tst-addsub try
 
 allprogs: $(EXTRA_PROGRAMS)
 

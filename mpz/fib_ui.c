@@ -1,6 +1,6 @@
 /* mpz_fib_ui -- calculate Fibonacci numbers.
 
-Copyright 2000-2002, 2005, 2012, 2014, 2015 Free Software Foundation, Inc.
+Copyright 2000-2002, 2005, 2012, 2014 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -29,6 +29,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 #include <stdio.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -64,7 +65,7 @@ mpz_fib_ui (mpz_ptr fn, unsigned long n)
 
   if (n <= FIB_TABLE_LIMIT)
     {
-      MPZ_NEWALLOC (fn, 1)[0] = FIB_TABLE (n);
+      PTR(fn)[0] = FIB_TABLE (n);
       SIZ(fn) = (n != 0);      /* F[0]==0, others are !=0 */
       return;
     }

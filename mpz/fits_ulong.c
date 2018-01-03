@@ -30,4 +30,5 @@ see https://www.gnu.org/licenses/.  */
 
 #define __GMP_FORCE_mpz_fits_ulong_p 1
 
+#include "gmp.h"
 #include "gmp-impl.h"

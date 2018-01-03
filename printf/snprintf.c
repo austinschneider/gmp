@@ -31,6 +31,7 @@ see https://www.gnu.org/licenses/.  */
 #include <stdarg.h>
 #include <string.h>    /* for strlen */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 

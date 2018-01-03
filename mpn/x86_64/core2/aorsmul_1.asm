@@ -31,25 +31,16 @@ dnl  see https://www.gnu.org/licenses/.
 include(`../config.m4')
 
 C	     cycles/limb
-C AMD K8,K9      4.52
-C AMD K10        4.01
-C AMD bull       4.98
-C AMD pile       4.83
-C AMD steam
-C AMD excavator
-C AMD bobcat     5.56
-C AMD jaguar     5.54
-C Intel P4      16.3    17.3
-C Intel core2    4.32    4.61
-C Intel NHM      5.08
-C Intel SBR      4.04
-C Intel IBR      3.95
-C Intel HWL      3.66
-C Intel BWL      2.87
-C Intel SKL      2.79
-C Intel atom    20.6
-C Intel SLM      7.6
-C VIA nano       5.25
+C AMD K8,K9	 4
+C AMD K10	 4
+C AMD bd1	 5.1
+C AMD bobcat
+C Intel P4	 ?
+C Intel core2	 4.3-4.5 (fluctuating)
+C Intel NHM	 5.0
+C Intel SBR	 4.1
+C Intel atom	 ?
+C VIA nano	 5.25
 
 C INPUT PARAMETERS
 define(`rp',	`%rdi')
@@ -116,24 +107,23 @@ PROLOGUE(func)
 	mul	%rcx
 
 L(start_nc):
-	test	$1, R8(%rbx)
-	jnz	L(odd)
+	bt	$0, R32(%rbx)
+	jc	L(odd)
 
 	lea	(%rax), %r11
 	mov	8(up,%rbx,8), %rax
 	lea	(%rdx), %rbp
 	mul	%rcx
 	add	$2, %rbx
-	jz	L(n2)
+	jns	L(n2)
 
 	lea	(%rax), %r8
 	mov	(up,%rbx,8), %rax
 	lea	(%rdx), %r9
 	jmp	L(mid)
 
-	ALIGN(8)
-L(odd):	inc	%rbx
-	jz	L(n1)
+L(odd):	add	$1, %rbx
+	jns	L(n1)
 
 	lea	(%rax), %r8
 	mov	(up,%rbx,8), %rax
@@ -170,16 +160,16 @@ L(e):	add	$2, %rbx
 	ADDSUB	%r8, %r10
 	adc	%r9, %r11
 	mov	%r10, -8(rp)
-	adc	%rbx, %rbp		C rbx = 0
+	adc	$0, %rbp
 L(n2):	mov	(rp), %r10
 	ADDSUB	%r11, %r10
 	adc	%rbp, %rax
 	mov	%r10, (rp)
-	adc	%rbx, %rdx		C rbx = 0
+	adc	$0, %rdx
 L(n1):	mov	8(rp), %r10
 	ADDSUB	%rax, %r10
 	mov	%r10, 8(rp)
-	mov	R32(%rbx), R32(%rax)	C rbx = 0
+	mov	R32(%rbx), R32(%rax)	C zero rax
 	adc	%rdx, %rax
 	pop	%rbp
 	pop	%rbx

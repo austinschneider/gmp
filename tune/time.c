@@ -207,6 +207,7 @@ see https://www.gnu.org/licenses/.  */
 #include <sys/times.h>  /* for times() and struct tms */
 #endif
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 #include "speed.h"

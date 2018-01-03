@@ -2,7 +2,7 @@
    integer in the range 0 to N-1, using STATE as the random state
    previously initialized by a call to gmp_randinit().
 
-Copyright 2000, 2002, 2012, 2015 Free Software Foundation, Inc.
+Copyright 2000, 2002, 2012 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -30,6 +30,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h" /* for count_leading_zeros */
 
@@ -39,9 +40,8 @@ see https://www.gnu.org/licenses/.  */
 void
 mpz_urandomm (mpz_ptr rop, gmp_randstate_t rstate, mpz_srcptr n)
 {
-  mp_ptr rp, np;
+  mp_ptr rp, np, nlast;
   mp_size_t nbits, size;
-  mp_limb_t nh;
   int count;
   int pow2;
   int cmp;
@@ -51,13 +51,19 @@ mpz_urandomm (mpz_ptr rop, gmp_randstate_t rstate, mpz_srcptr n)
   if (UNLIKELY (size == 0))
     DIVIDE_BY_ZERO;
 
-  np = PTR (n);
-  nh = np[size - 1];
+  nlast = &PTR (n)[size - 1];
 
   /* Detect whether n is a power of 2.  */
-  pow2 = POW2_P (nh) && (size == 1 || mpn_zero_p (np, size - 1));
+  pow2 = POW2_P (*nlast);
+  if (pow2 != 0)
+    for (np = PTR (n); np < nlast; np++)
+      if (*np != 0)
+	{
+	  pow2 = 0;		/* Mark n as `not a power of two'.  */
+	  break;
+	}
 
-  count_leading_zeros (count, nh);
+  count_leading_zeros (count, *nlast);
   nbits = size * GMP_NUMB_BITS - (count - GMP_NAIL_BITS) - pow2;
   if (nbits == 0)		/* nbits == 0 means that n was == 1.  */
     {
@@ -66,6 +72,7 @@ mpz_urandomm (mpz_ptr rop, gmp_randstate_t rstate, mpz_srcptr n)
     }
 
   TMP_MARK;
+  np = PTR (n);
   if (rop == n)
     {
       mp_ptr tp;
@@ -76,7 +83,7 @@ mpz_urandomm (mpz_ptr rop, gmp_randstate_t rstate, mpz_srcptr n)
 
   /* Here the allocated size can be one too much if n is a power of
      (2^GMP_NUMB_BITS) but it's convenient for using mpn_cmp below.  */
-  rp = MPZ_NEWALLOC (rop, size);
+  rp = MPZ_REALLOC (rop, size);
   /* Clear last limb to prevent the case in which size is one too much.  */
   rp[size - 1] = 0;
 

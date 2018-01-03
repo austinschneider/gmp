@@ -29,6 +29,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 #include <stdarg.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void
@@ -38,13 +39,12 @@ mpq_clears (mpq_ptr x, ...)
 
   va_start (ap, x);
 
-  do
+  while (x != NULL)
     {
       __GMP_FREE_FUNC_LIMBS (PTR(NUM(x)), ALLOC(NUM(x)));
       __GMP_FREE_FUNC_LIMBS (PTR(DEN(x)), ALLOC(DEN(x)));
       x = va_arg (ap, mpq_ptr);
     }
-  while (x != NULL);
 
   va_end (ap);
 }

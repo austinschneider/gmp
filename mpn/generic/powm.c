@@ -81,6 +81,7 @@ see https://www.gnu.org/licenses/.  */
      mod M.
 */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -129,7 +130,7 @@ getbits (const mp_limb_t *p, mp_bitcnt_t bi, int nbits)
       nbits_in_r = GMP_NUMB_BITS - bi;	/* number of bits now in r */
       if (nbits_in_r < nbits)		/* did we get enough bits? */
 	r += p[i + 1] << nbits_in_r;	/* prepend bits from higher word */
-      return r & (((mp_limb_t) 1 << nbits) - 1);
+      return r & (((mp_limb_t ) 1 << nbits) - 1);
     }
 }
 

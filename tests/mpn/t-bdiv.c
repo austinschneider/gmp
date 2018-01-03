@@ -1,4 +1,4 @@
-/* Copyright 2006, 2007, 2009, 2010, 2017 Free Software Foundation, Inc.
+/* Copyright 2006, 2007, 2009, 2010 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library test suite.
 
@@ -19,6 +19,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include <stdlib.h>		/* for strtol */
 #include <stdio.h>		/* for printf */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 #include "tests/tests.h"
@@ -60,6 +61,7 @@ check_one (mp_ptr qp, mp_srcptr rp, mp_limb_t rh,
 	   mp_srcptr np, mp_size_t nn, mp_srcptr dp, mp_size_t dn, const char *fname)
 {
   mp_size_t qn;
+  int cmp;
   mp_ptr tp;
   mp_limb_t cy = 4711;		/* silence warnings */
   TMP_DECL;
@@ -78,10 +80,15 @@ check_one (mp_ptr qp, mp_srcptr rp, mp_limb_t rh,
   else
     mpn_mul (tp, qp, qn, dp, dn);
 
-  cy = mpn_add_n (tp, tp, np, nn);
+  if (rp != NULL)
+    {
+      cy = mpn_add_n (tp + qn, tp + qn, rp, dn);
+      cmp = cy != rh || mpn_cmp (tp, np, nn) != 0;
+    }
+  else
+    cmp = mpn_cmp (tp, np, nn - dn) != 0;
 
-  if (! mpn_zero_p (tp, qn)
-      || (rp != NULL && (cy != rh || mpn_cmp (tp + qn, rp, dn) != 0)))
+  if (cmp != 0)
     {
       printf ("\r*******************************************************************************\n");
       printf ("%s inconsistent in test %lu\n", fname, test);
@@ -256,7 +263,10 @@ main (int argc, char **argv)
 	      ASSERT_ALWAYS (qp[-1] == qran0);  ASSERT_ALWAYS (qp[nn - dn + 1] == qran1);
 	      ASSERT_ALWAYS (rp[-1] == rran0);
 	      check_one (qp, rp + nn - dn, rh, np, nn, dp, dn, "mpn_sbpi1_bdiv_qr");
+	    }
 
+	  if (nn > dn)
+	    {
 	      /* Test mpn_sbpi1_bdiv_q */
 	      MPN_COPY (rp, np, nn);
 	      MPN_ZERO (qp, nn - dn);
@@ -264,12 +274,6 @@ main (int argc, char **argv)
 	      ASSERT_ALWAYS (qp[-1] == qran0);  ASSERT_ALWAYS (qp[nn - dn + 1] == qran1);
 	      ASSERT_ALWAYS (rp[-1] == rran0);
 	      check_one (qp, NULL, 0, np, nn, dp, dn, "mpn_sbpi1_bdiv_q");
-
-	      /* Test mpn_sbpi1_bdiv_r; we use mpn_sbpi1_bdiv_q's quotient. */
-	      MPN_COPY (rp, np, nn);
-	      mpn_sbpi1_bdiv_r (rp, nn, dp, dn, -dinv);
-	      ASSERT_ALWAYS (rp[-1] == rran0);
-	      check_one (qp, NULL, 0, np, nn, dp, dn, "mpn_sbpi1_bdiv_r");
 	    }
 	}
 

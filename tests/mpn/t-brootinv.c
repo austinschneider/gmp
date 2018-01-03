@@ -19,6 +19,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include <stdlib.h>		/* for strtol */
 #include <stdio.h>		/* for printf */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 #include "tests/tests.h"

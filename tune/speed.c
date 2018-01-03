@@ -1,6 +1,6 @@
 /* Speed measuring program.
 
-Copyright 1999-2003, 2005, 2006, 2008-2016 Free Software Foundation, Inc.
+Copyright 1999-2003, 2005, 2006, 2008-2015 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -67,6 +67,7 @@ see https://www.gnu.org/licenses/.  */
 #endif
 
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"  /* for the benefit of speed-many.c */
 #include "tests.h"
@@ -382,7 +383,6 @@ const struct routine_t {
   { "mpn_dcpi1_bdiv_qr",       speed_mpn_dcpi1_bdiv_qr       },
   { "mpn_sbpi1_bdiv_q",        speed_mpn_sbpi1_bdiv_q        },
   { "mpn_dcpi1_bdiv_q",        speed_mpn_dcpi1_bdiv_q        },
-  { "mpn_sbpi1_bdiv_r",        speed_mpn_sbpi1_bdiv_r        },
 
   { "mpn_broot",               speed_mpn_broot,    FLAG_R },
   { "mpn_broot_invm1",         speed_mpn_broot_invm1, FLAG_R },
@@ -404,13 +404,10 @@ const struct routine_t {
   { "mpz_lucnum2_ui",    speed_mpz_lucnum2_ui, FLAG_NODATA },
 
   { "mpz_add",           speed_mpz_add              },
-  { "mpz_invert",        speed_mpz_invert,   FLAG_R_OPTIONAL },
   { "mpz_bin_uiui",      speed_mpz_bin_uiui, FLAG_NODATA | FLAG_R_OPTIONAL },
   { "mpz_bin_ui",        speed_mpz_bin_ui,   FLAG_NODATA | FLAG_R_OPTIONAL },
   { "mpz_fac_ui",        speed_mpz_fac_ui,   FLAG_NODATA   },
   { "mpz_2fac_ui",       speed_mpz_2fac_ui,  FLAG_NODATA   },
-  { "mpz_mfac_uiui",     speed_mpz_mfac_uiui,  FLAG_NODATA | FLAG_R_OPTIONAL },
-  { "mpz_primorial_ui",  speed_mpz_primorial_ui, FLAG_NODATA },
   { "mpz_powm",          speed_mpz_powm             },
   { "mpz_powm_mod",      speed_mpz_powm_mod         },
   { "mpz_powm_redc",     speed_mpz_powm_redc        },

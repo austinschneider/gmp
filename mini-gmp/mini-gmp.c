@@ -2,7 +2,7 @@
 
    Contributed to the GNU project by Niels Möller
 
-Copyright 1991-1997, 1999-2017 Free Software Foundation, Inc.
+Copyright 1991-1997, 1999-2016 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -70,12 +70,6 @@ see https://www.gnu.org/licenses/.  */
 #define GMP_MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #define GMP_CMP(a,b) (((a) > (b)) - ((a) < (b)))
-
-/* Return non-zero if xp,xsize and yp,ysize overlap.
-   If xp+xsize<=yp there's no overlap, or if yp+ysize<=xp there's no
-   overlap.  If both these are false, there's an overlap. */
-#define GMP_MPN_OVERLAP_P(xp, xsize, yp, ysize)				\
-  ((xp) + (xsize) > (yp) && (yp) + (ysize) > (xp))
 
 #define gmp_assert_nocarry(x) do { \
     mp_limb_t __cy = (x);	   \
@@ -582,8 +576,6 @@ mpn_mul (mp_ptr rp, mp_srcptr up, mp_size_t un, mp_srcptr vp, mp_size_t vn)
 {
   assert (un >= vn);
   assert (vn >= 1);
-  assert (!GMP_MPN_OVERLAP_P(rp, un + vn, up, un));
-  assert (!GMP_MPN_OVERLAP_P(rp, un + vn, vp, vn));
 
   /* We first multiply by the low order limb. This result can be
      stored, not added, to rp. We also avoid a loop for zeroing this
@@ -3352,24 +3344,11 @@ mpn_sqrtrem (mp_ptr sp, mp_ptr rp, mp_srcptr p, mp_size_t n)
 /* Combinatorics */
 
 void
-mpz_mfac_uiui (mpz_t x, unsigned long n, unsigned long m)
-{
-  mpz_set_ui (x, n + (n == 0));
-  if (m + 1 < 2) return;
-  while (n > m + 1)
-    mpz_mul_ui (x, x, n -= m);
-}
-
-void
-mpz_2fac_ui (mpz_t x, unsigned long n)
-{
-  mpz_mfac_uiui (x, n, 2);
-}
-
-void
 mpz_fac_ui (mpz_t x, unsigned long n)
 {
-  mpz_mfac_uiui (x, n, 1);
+  mpz_set_ui (x, n + (n == 0));
+  while (n > 2)
+    mpz_mul_ui (x, x, --n);
 }
 
 void
@@ -3385,7 +3364,7 @@ mpz_bin_uiui (mpz_t r, unsigned long n, unsigned long k)
   mpz_init (t);
   mpz_fac_ui (t, k);
 
-  for (; k > 0; --k)
+  for (; k > 0; k--)
       mpz_mul_ui (r, r, n--);
 
   mpz_divexact (r, r, t);
@@ -4034,7 +4013,7 @@ mpz_sizeinbase (const mpz_t u, int base)
   size_t ndigits;
 
   assert (base >= 2);
-  assert (base <= 62);
+  assert (base <= 36);
 
   un = GMP_ABS (u->_mp_size);
   if (un == 0)
@@ -4084,22 +4063,19 @@ mpz_get_str (char *sp, int base, const mpz_t u)
   mp_size_t un;
   size_t i, sn;
 
-  digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  if (base > 1)
+  if (base >= 0)
     {
-      if (base <= 36)
-	digits = "0123456789abcdefghijklmnopqrstuvwxyz";
-      else if (base > 62)
-	return NULL;
+      digits = "0123456789abcdefghijklmnopqrstuvwxyz";
     }
-  else if (base >= -1)
-    base = 10;
   else
     {
       base = -base;
-      if (base > 36)
-	return NULL;
+      digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     }
+  if (base <= 1)
+    base = 10;
+  if (base > 36)
+    return NULL;
 
   sn = 1 + mpz_sizeinbase (u, base);
   if (!sp)
@@ -4147,14 +4123,14 @@ mpz_get_str (char *sp, int base, const mpz_t u)
 int
 mpz_set_str (mpz_t r, const char *sp, int base)
 {
-  unsigned bits, value_of_a;
+  unsigned bits;
   mp_size_t rn, alloc;
   mp_ptr rp;
   size_t dn;
   int sign;
   unsigned char *dp;
 
-  assert (base == 0 || (base >= 2 && base <= 62));
+  assert (base == 0 || (base >= 2 && base <= 36));
 
   while (isspace( (unsigned char) *sp))
     sp++;
@@ -4190,7 +4166,6 @@ mpz_set_str (mpz_t r, const char *sp, int base)
     }
   dp = (unsigned char *) gmp_xalloc (strlen (sp));
 
-  value_of_a = (base > 36) ? 36 : 10;
   for (dn = 0; *sp; sp++)
     {
       unsigned digit;
@@ -4200,7 +4175,7 @@ mpz_set_str (mpz_t r, const char *sp, int base)
       else if (*sp >= '0' && *sp <= '9')
 	digit = *sp - '0';
       else if (*sp >= 'a' && *sp <= 'z')
-	digit = *sp - 'a' + value_of_a;
+	digit = *sp - 'a' + 10;
       else if (*sp >= 'A' && *sp <= 'Z')
 	digit = *sp - 'A' + 10;
       else

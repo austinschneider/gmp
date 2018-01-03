@@ -3,8 +3,7 @@
    pointed to by RP.  Return the most significant limb of the product,
    adjusted for carry-out from the addition.
 
-Copyright 1992-1994, 1996, 2000, 2002, 2004, 2016 Free Software Foundation,
-Inc.
+Copyright 1992-1994, 1996, 2000, 2002, 2004 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -32,6 +31,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -39,36 +39,30 @@ see https://www.gnu.org/licenses/.  */
 #if GMP_NAIL_BITS == 0
 
 mp_limb_t
-mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t v0)
+mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t vl)
 {
-  mp_limb_t u0, crec, c, p1, p0, r0;
+  mp_limb_t ul, cl, hpl, lpl, rl;
 
   ASSERT (n >= 1);
   ASSERT (MPN_SAME_OR_SEPARATE_P (rp, up, n));
 
-  crec = 0;
+  cl = 0;
   do
     {
-      u0 = *up++;
-      umul_ppmm (p1, p0, u0, v0);
+      ul = *up++;
+      umul_ppmm (hpl, lpl, ul, vl);
 
-      r0 = *rp;
+      lpl += cl;
+      cl = (lpl < cl) + hpl;
 
-      p0 = r0 + p0;
-      c = r0 > p0;
-
-      p1 = p1 + c;
-
-      r0 = p0 + crec;		/* cycle 0, 3, ... */
-      c = p0 > r0;		/* cycle 1, 4, ... */
-
-      crec = p1 + c;		/* cycle 2, 5, ... */
-
-      *rp++ = r0;
+      rl = *rp;
+      lpl = rl + lpl;
+      cl += lpl < rl;
+      *rp++ = lpl;
     }
   while (--n != 0);
 
-  return crec;
+  return cl;
 }
 
 #endif
@@ -76,35 +70,35 @@ mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t v0)
 #if GMP_NAIL_BITS == 1
 
 mp_limb_t
-mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t v0)
+mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t vl)
 {
-  mp_limb_t shifted_v0, u0, r0, p0, p1, prev_p1, crec, xl, c1, c2, c3;
+  mp_limb_t shifted_vl, ul, rl, lpl, hpl, prev_hpl, cl, xl, c1, c2, c3;
 
   ASSERT (n >= 1);
   ASSERT (MPN_SAME_OR_SEPARATE_P (rp, up, n));
   ASSERT_MPN (rp, n);
   ASSERT_MPN (up, n);
-  ASSERT_LIMB (v0);
+  ASSERT_LIMB (vl);
 
-  shifted_v0 = v0 << GMP_NAIL_BITS;
-  crec = 0;
-  prev_p1 = 0;
+  shifted_vl = vl << GMP_NAIL_BITS;
+  cl = 0;
+  prev_hpl = 0;
   do
     {
-      u0 = *up++;
-      r0 = *rp;
-      umul_ppmm (p1, p0, u0, shifted_v0);
-      p0 >>= GMP_NAIL_BITS;
-      ADDC_LIMB (c1, xl, prev_p1, p0);
-      ADDC_LIMB (c2, xl, xl, r0);
-      ADDC_LIMB (c3, xl, xl, crec);
-      crec = c1 + c2 + c3;
+      ul = *up++;
+      rl = *rp;
+      umul_ppmm (hpl, lpl, ul, shifted_vl);
+      lpl >>= GMP_NAIL_BITS;
+      ADDC_LIMB (c1, xl, prev_hpl, lpl);
+      ADDC_LIMB (c2, xl, xl, rl);
+      ADDC_LIMB (c3, xl, xl, cl);
+      cl = c1 + c2 + c3;
       *rp++ = xl;
-      prev_p1 = p1;
+      prev_hpl = hpl;
     }
   while (--n != 0);
 
-  return prev_p1 + crec;
+  return prev_hpl + cl;
 }
 
 #endif
@@ -112,34 +106,34 @@ mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t v0)
 #if GMP_NAIL_BITS >= 2
 
 mp_limb_t
-mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t v0)
+mpn_addmul_1 (mp_ptr rp, mp_srcptr up, mp_size_t n, mp_limb_t vl)
 {
-  mp_limb_t shifted_v0, u0, r0, p0, p1, prev_p1, xw, crec, xl;
+  mp_limb_t shifted_vl, ul, rl, lpl, hpl, prev_hpl, xw, cl, xl;
 
   ASSERT (n >= 1);
   ASSERT (MPN_SAME_OR_SEPARATE_P (rp, up, n));
   ASSERT_MPN (rp, n);
   ASSERT_MPN (up, n);
-  ASSERT_LIMB (v0);
+  ASSERT_LIMB (vl);
 
-  shifted_v0 = v0 << GMP_NAIL_BITS;
-  crec = 0;
-  prev_p1 = 0;
+  shifted_vl = vl << GMP_NAIL_BITS;
+  cl = 0;
+  prev_hpl = 0;
   do
     {
-      u0 = *up++;
-      r0 = *rp;
-      umul_ppmm (p1, p0, u0, shifted_v0);
-      p0 >>= GMP_NAIL_BITS;
-      xw = prev_p1 + p0 + r0 + crec;
-      crec = xw >> GMP_NUMB_BITS;
+      ul = *up++;
+      rl = *rp;
+      umul_ppmm (hpl, lpl, ul, shifted_vl);
+      lpl >>= GMP_NAIL_BITS;
+      xw = prev_hpl + lpl + rl + cl;
+      cl = xw >> GMP_NUMB_BITS;
       xl = xw & GMP_NUMB_MASK;
       *rp++ = xl;
-      prev_p1 = p1;
+      prev_hpl = hpl;
     }
   while (--n != 0);
 
-  return prev_p1 + crec;
+  return prev_hpl + cl;
 }
 
 #endif

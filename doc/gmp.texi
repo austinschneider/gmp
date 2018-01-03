@@ -148,8 +148,9 @@ How to install and use the GNU multiple precision arithmetic library, version @v
 @end menu
 
 
-@c  @m{T,N} is $T$ in tex or @math{N} otherwise.  Commas in N or T don't work,
-@c  but @C{} can be used instead.
+@c  @m{T,N} is $T$ in tex or @math{N} otherwise.  This is an easy way to give
+@c  different forms for math in tex and info.  Commas in N or T don't work,
+@c  but @C{} can be used instead.  \, works in info but not in tex.
 @iftex
 @macro m {T,N}
 @tex$\T\$@end tex
@@ -160,27 +161,6 @@ How to install and use the GNU multiple precision arithmetic library, version @v
 @math{\N\}
 @end macro
 @end ifnottex
-
-@c  @mm{T,N} is $T$ tex and html and @math{N} in info.  Commas in N or T don't
-@c  work, but @C{} can be used instead.
-@iftex
-@macro mm {T,N}
-@tex$\T\$@end tex
-@end macro
-@end iftex
-
-@ifhtml
-@macro mm {T,N}
-@math{\T\}
-@end macro
-@end ifhtml
-
-@ifinfo
-@macro mm {T,N}
-@math{\N\}
-@end macro
-@end ifinfo
-
 
 @macro C {}
 ,
@@ -2027,7 +2007,8 @@ functions for generating random numbers.  (@pxref{Custom Allocation}, and
 @cindex Conventions for variables
 
 GMP functions generally have output arguments before input arguments.  This
-notation is by analogy with the assignment operator.
+notation is by analogy with the assignment operator.  The BSD MP compatibility
+functions are exceptions, having the output arguments last.
 
 GMP lets you use the same variable for both input and output in one call.  For
 example, the main function for integer multiplication, @code{mpz_mul}, can be
@@ -2069,16 +2050,6 @@ foo (void)
 @}
 @end example
 
-GMP types like @code{mpz_t} are implemented as one-element arrays of certain
-structures.  Declaring a variable creates an object with the fields GMP needs,
-but variables are normally manipulated by using the pointer to the object.  For
-both behavior and efficiency reasons, it is discouraged to make copies of the
-GMP object itself (either directly or via aggregate objects containing such GMP
-objects).  If copies are done, all of them must be used read-only; using a copy
-as the output of some function will invalidate all the other copies.  Note that
-the actual fields in each @code{mpz_t} etc are for internal use only and should
-not be accessed directly by code that expects to be compatible with future GMP
-releases.
 
 @node Parameter Conventions, Memory Management, Variable Conventions, GMP Basics
 @section Parameter Conventions
@@ -2086,10 +2057,10 @@ releases.
 @cindex Conventions for parameters
 
 When a GMP variable is used as a function parameter, it's effectively a
-call-by-reference, meaning that when the function stores a value there it will
-change the original in the caller.  Parameters which are input-only can be
-designated @code{const} to provoke a compiler error or warning on attempting to
-modify them.
+call-by-reference, meaning if the function stores a value there it will change
+the original in the caller.  Parameters which are input-only can be designated
+@code{const} to provoke a compiler error or warning on attempting to modify
+them.
 
 When a function is going to return a GMP result, it should designate a
 parameter that it sets, like the library functions do.  More than one value
@@ -2122,13 +2093,17 @@ main (void)
 @}
 @end example
 
-Our function @code{foo} works even if its caller passes the same variable for
+@code{foo} works even if the mainline passes the same variable for
 @code{param} and @code{result}, just like the library functions.  But
 sometimes it's tricky to make that work, and an application might not want to
 bother supporting that sort of thing.
 
-Since GMP types are implemented as one-element arrays, using a GMP variable as
-a parameter passes a pointer to the object. Hence the call-by-reference.
+For interest, the GMP types @code{mpz_t} etc are implemented as one-element
+arrays of certain structures.  This is why declaring a variable creates an
+object with the fields GMP needs, but then using it as a parameter passes a
+pointer to the object.  Note that the actual fields in each @code{mpz_t} etc
+are for internal use only and should not be accessed directly by code that
+expects to be compatible with future GMP releases.
 
 
 @need 1000
@@ -3458,10 +3433,9 @@ only when exactly equal.
 Set @var{rop} to @m{base^{exp} \bmod mod, (@var{base} raised to @var{exp})
 modulo @var{mod}}.
 
-Negative @var{exp} is supported if the inverse @mm{@var{base}@sup{-1} @bmod
-@var{mod}, @var{base}^(-1) @bmod @var{mod}} exists (see @code{mpz_invert} in
-@ref{Number Theoretic Functions}).  If an inverse doesn't exist then a divide
-by zero is raised.
+Negative @var{exp} is supported if an inverse @math{@var{base}^@W{-1} @bmod
+@var{mod}} exists (see @code{mpz_invert} in @ref{Number Theoretic Functions}).
+If an inverse doesn't exist then a divide by zero is raised.
 @end deftypefun
 
 @deftypefun void mpz_powm_sec (mpz_t @var{rop}, const mpz_t @var{base}, const mpz_t @var{exp}, const mpz_t @var{mod})
@@ -3624,7 +3598,7 @@ In all cases, @math{@var{s} = 0} if and only if @math{@var{g} =
 @GMPabs{@var{b}}}, i.e., if @var{b} divides @var{a} or @math{@var{a} = @var{b}
 = 0}.
 
-If @var{t} or @var{g} is @code{NULL} then that value is not computed.
+If @var{t} is @code{NULL} then that value is not computed.
 @end deftypefun
 
 @deftypefun void mpz_lcm (mpz_t @var{rop}, const mpz_t @var{op1}, const mpz_t @var{op2})
@@ -3950,8 +3924,8 @@ Functions} for more information on how to use and not to use random
 number functions.
 
 @deftypefun void mpz_urandomb (mpz_t @var{rop}, gmp_randstate_t @var{state}, mp_bitcnt_t @var{n})
-Generate a uniformly distributed random integer in the range 0 to
-@mm{2@sup{n}-1, 2^@var{n}@minus{}1}, inclusive.
+Generate a uniformly distributed random integer in the range 0 to @m{2^n-1,
+2^@var{n}@minus{}1}, inclusive.
 
 The variable @var{state} must be initialized by calling one of the
 @code{gmp_randinit} functions (@ref{Random State Initialization}) before
@@ -3972,8 +3946,7 @@ Generate a random integer with long strings of zeros and ones in the
 binary representation.  Useful for testing functions and algorithms,
 since this kind of random numbers have proven to be more likely to
 trigger corner-case bugs.  The random number will be in the range
-@mm{2@sup{n-1}, 2^(@var{n}@minus{}1)} to @mm{2@sup{n}-1,
-2^@var{n}@minus{}1}, inclusive.
+@m{2^{n-1}, 2^@var{n@minus{}1}} to @m{2^n-1, 2^@var{n}@minus{}1}, inclusive.
 
 The variable @var{state} must be initialized by calling one of the
 @code{gmp_randinit} functions (@ref{Random State Initialization})
@@ -6890,18 +6863,11 @@ mpz_fdiv_q (q.get_mpz_t(), a.get_mpz_t(), d.get_mpz_t());
 @maybepagebreak
 @deftypefunx mpz_class gcd (mpz_class @var{op1}, mpz_class @var{op2})
 @deftypefunx mpz_class lcm (mpz_class @var{op1}, mpz_class @var{op2})
-@deftypefunx mpz_class mpz_class::factorial (type @var{op})
-@deftypefunx mpz_class factorial (mpz_class @var{op})
-@deftypefunx mpz_class mpz_class::primorial (type @var{op})
-@deftypefunx mpz_class primorial (mpz_class @var{op})
-@deftypefunx mpz_class mpz_class::fibonacci (type @var{op})
-@deftypefunx mpz_class fibonacci (mpz_class @var{op})
 @maybepagebreak
 @deftypefunx void mpz_class::swap (mpz_class& @var{op})
 @deftypefunx void swap (mpz_class& @var{op1}, mpz_class& @var{op2})
 These functions provide a C++ class interface to the corresponding GMP C
-routines.  Calling @code{factorial} or @code{primorial} on a negative number
-is undefined.
+routines.
 
 @code{cmp} can be used with any of the classes or the standard C++ types,
 except @code{long long} and @code{long double}.
@@ -8249,11 +8215,11 @@ single operand. It can be virtual, i.e. zero, or real, when the two operand
 are not exactly balanced. By choosing an even @math{r},
 Toom-@m{r{1\over2},r+1/2} requires @math{2r} points, a multiple of four.
 
-The quadruplets of points include 0, @m{\infty,inf}, +1, -1 and
+The four-plets of points include 0, @m{\infty,inf}, +1, -1 and
 @m{\pm2^i,+-2^i}, @m{\pm2^{-i},+-2^-i} . Each of them giving shortcuts for the
 evaluation phase and for some steps in the interpolation phase. Further tricks
 are used to reduce the memory footprint of the whole multiplication algorithm
-to a memory buffer equal in size to the result of the product.
+to a memory buffer equanl in size to the result of the product.
 
 Current GMP uses both Toom-6'n'half and Toom-8'n'half.
 

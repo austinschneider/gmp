@@ -28,6 +28,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void
@@ -53,21 +54,22 @@ mpz_tdiv_r_2exp (mpz_ptr res, mpz_srcptr in, mp_bitcnt_t cnt)
 	}
       else
 	{
-	  MPN_NORMALIZE (in_ptr, limb_cnt);
-
-	  MPZ_REALLOC (res, limb_cnt);
-
 	  res_size = limb_cnt;
+	  MPN_NORMALIZE (in_ptr, res_size);
+
+	  MPZ_REALLOC (res, res_size);
+
+	  limb_cnt = res_size;
 	}
     }
   else
     {
       /* The input operand is smaller than 2**CNT.  We perform a no-op,
 	 apart from that we might need to copy IN to RES.  */
-      limb_cnt = in_size;
-      MPZ_REALLOC (res, limb_cnt);
+      res_size = in_size;
+      MPZ_REALLOC (res, res_size);
 
-      res_size = limb_cnt;
+      limb_cnt = res_size;
     }
 
   if (res != in)

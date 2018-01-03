@@ -4,11 +4,6 @@ Verbatim copying and distribution of this entire article is permitted in any
 medium, provided this notice is preserved.
 
 
-Changes between GMP version 6.1.* and 6.2.0
-
-  FEATURES
-  * New C++ functions factorial and primorial for mpz_class.
-
 Changes between GMP version 6.1.1 and 6.1.2
 
   BUGS FIXED

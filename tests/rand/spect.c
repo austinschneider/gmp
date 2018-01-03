@@ -28,6 +28,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include "gmp.h"
 
 #include "gmpstat.h"
 

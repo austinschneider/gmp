@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/.  */
 
 #define OPERATION_mod_1
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 #undef MOD_1_NORM_THRESHOLD

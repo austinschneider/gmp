@@ -4,7 +4,7 @@
 
    Contributed to the GNU project by Torbjörn Granlund.
 
-Copyright 2011-2015 Free Software Foundation, Inc.
+Copyright 2011-2014 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -32,6 +32,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -72,6 +73,7 @@ FNAME (Q(mp_ptr qp)
 {
   mp_limb_t d1, d0;
   unsigned int cnt;
+  gmp_pi1_t dinv;
   mp_limb_t inv32;
 
   ASSERT (dn >= 1);

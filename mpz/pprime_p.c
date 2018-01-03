@@ -6,8 +6,7 @@
    positive is (1/4)**reps, where reps is the number of internal passes of the
    probabilistic algorithm.  Knuth indicates that 25 passes are reasonable.
 
-Copyright 1991, 1993, 1994, 1996-2002, 2005, 2015, 2016 Free Software
-Foundation, Inc.
+Copyright 1991, 1993, 1994, 1996-2002, 2005 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -35,6 +34,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -55,12 +55,10 @@ mpz_probab_prime_p (mpz_srcptr n, int reps)
   /* Handle small and negative n.  */
   if (mpz_cmp_ui (n, 1000000L) <= 0)
     {
+      int is_prime;
       if (mpz_cmpabs_ui (n, 1000000L) <= 0)
 	{
-	  int is_prime;
-	  unsigned long n0;
-	  n0 = mpz_get_ui (n);
-	  is_prime = n0 & (n0 > 1) ? isprime (n0) : n0 == 2;
+	  is_prime = isprime (mpz_get_ui (n));
 	  return is_prime ? 2 : 0;
 	}
       /* Negative number.  Negate and fall out.  */
@@ -70,7 +68,7 @@ mpz_probab_prime_p (mpz_srcptr n, int reps)
     }
 
   /* If n is now even, it is not a prime.  */
-  if (mpz_even_p (n))
+  if ((mpz_get_ui (n) & 1) == 0)
     return 0;
 
 #if defined (PP)
@@ -152,15 +150,15 @@ isprime (unsigned long int t)
 {
   unsigned long int q, r, d;
 
-  ASSERT (t >= 3 && (t & 1) != 0);
+  if (t < 3 || (t & 1) == 0)
+    return t == 2;
 
-  d = 3;
-  do {
+  for (d = 3, r = 1; r != 0; d += 2)
+    {
       q = t / d;
       r = t - q * d;
       if (q < d)
 	return 1;
-      d += 2;
-  } while (r != 0);
+    }
   return 0;
 }

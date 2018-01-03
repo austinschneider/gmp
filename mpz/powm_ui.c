@@ -2,8 +2,8 @@
 
    Contributed to the GNU project by Torbjörn Granlund.
 
-Copyright 1991, 1993, 1994, 1996, 1997, 2000-2002, 2005, 2008, 2009,
-2011-2013, 2015 Free Software Foundation, Inc.
+Copyright 1991, 1993, 1994, 1996, 1997, 2000-2002, 2005, 2008, 2009, 2011-2013
+Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -32,6 +32,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -108,7 +109,8 @@ reduce (mp_ptr tp, mp_srcptr ap, mp_size_t an, mp_srcptr mp, mp_size_t mn, gmp_p
   TMP_DECL;
   TMP_MARK;
 
-  TMP_ALLOC_LIMBS_2 (rp, an, scratch, an - mn + 1);
+  rp = TMP_ALLOC_LIMBS (an);
+  scratch = TMP_ALLOC_LIMBS (an - mn + 1);
   MPN_COPY (rp, ap, an);
   mod (rp, an, mp, mn, dinv, scratch);
   MPN_COPY (tp, rp, mn);
@@ -138,8 +140,8 @@ mpz_powm_ui (mpz_ptr r, mpz_srcptr b, unsigned long int el, mpz_srcptr m)
 	{
 	  /* Exponent is zero, result is 1 mod M, i.e., 1 or 0 depending on if
 	     M equals 1.  */
-	  SIZ(r) = mn != 1 || mp[0] != 1;
-	  MPZ_NEWALLOC (r, 1)[0] = 1;
+	  SIZ(r) = (mn == 1 && mp[0] == 1) ? 0 : 1;
+	  PTR(r)[0] = 1;
 	  return;
 	}
 
@@ -181,7 +183,9 @@ mpz_powm_ui (mpz_ptr r, mpz_srcptr b, unsigned long int el, mpz_srcptr m)
 	  return;
 	}
 
-      TMP_ALLOC_LIMBS_3 (xp, mn, scratch, mn + 1, tp, 2 * mn + 1);
+      tp = TMP_ALLOC_LIMBS (2 * mn + 1);
+      xp = TMP_ALLOC_LIMBS (mn);
+      scratch = TMP_ALLOC_LIMBS (mn + 1);
 
       MPN_COPY (xp, bp, bn);
       xn = bn;
@@ -270,7 +274,7 @@ mpz_powm_ui (mpz_ptr r, mpz_srcptr b, unsigned long int el, mpz_srcptr m)
 	  xn = mn;
 	  MPN_NORMALIZE (xp, xn);
 	}
-      MPZ_NEWALLOC (r, xn);
+      MPZ_REALLOC (r, xn);
       SIZ (r) = xn;
       MPN_COPY (PTR(r), xp, xn);
 

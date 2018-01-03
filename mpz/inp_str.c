@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/.  */
 
 #include <stdio.h>
 #include <ctype.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -83,7 +84,7 @@ mpz_inp_str_nowhite (mpz_ptr x, FILE *stream, int base, int c, size_t nread)
       /* For bases > 36, use the collating sequence
 	 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.  */
       digit_value += 208;
-      if (UNLIKELY (base > 62))
+      if (base > 62)
 	return 0;		/* too large base */
     }
 
@@ -131,7 +132,7 @@ mpz_inp_str_nowhite (mpz_ptr x, FILE *stream, int base, int c, size_t nread)
     }
 
   alloc_size = 100;
-  str = __GMP_ALLOCATE_FUNC_TYPE (alloc_size, char);
+  str = (char *) (*__gmp_allocate_func) (alloc_size);
   str_size = 0;
 
   while (c != EOF)
@@ -144,7 +145,7 @@ mpz_inp_str_nowhite (mpz_ptr x, FILE *stream, int base, int c, size_t nread)
 	{
 	  size_t old_alloc_size = alloc_size;
 	  alloc_size = alloc_size * 3 / 2;
-	  str = __GMP_REALLOCATE_FUNC_TYPE (str, old_alloc_size, alloc_size, char);
+	  str = (char *) (*__gmp_reallocate_func) (str, old_alloc_size, alloc_size);
 	}
       str[str_size++] = dig;
       c = getc (stream);
@@ -162,7 +163,7 @@ mpz_inp_str_nowhite (mpz_ptr x, FILE *stream, int base, int c, size_t nread)
   else
     {
       LIMBS_PER_DIGIT_IN_BASE (xsize, str_size, base);
-      MPZ_NEWALLOC (x, xsize);
+      MPZ_REALLOC (x, xsize);
 
       /* Convert the byte array in base BASE to our bignum format.  */
       xsize = mpn_set_str (PTR (x), (unsigned char *) str, str_size, base);

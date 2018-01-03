@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/.  */
 
 #include <string.h>
 #include <ctype.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -58,7 +59,7 @@ mpz_set_str (mpz_ptr x, const char *str, int base)
       /* For bases > 36, use the collating sequence
 	 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.  */
       digit_value += 208;
-      if (UNLIKELY (base > 62))
+      if (base > 62)
 	return -1;		/* too large base */
     }
 
@@ -120,7 +121,7 @@ mpz_set_str (mpz_ptr x, const char *str, int base)
       if (!isspace (c))
 	{
 	  int dig = digit_value[c];
-	  if (UNLIKELY (dig >= base))
+	  if (dig >= base)
 	    {
 	      TMP_FREE;
 	      return -1;
@@ -133,7 +134,7 @@ mpz_set_str (mpz_ptr x, const char *str, int base)
   str_size = s - begs;
 
   LIMBS_PER_DIGIT_IN_BASE (xsize, str_size, base);
-  MPZ_NEWALLOC (x, xsize);
+  MPZ_REALLOC (x, xsize);
 
   /* Convert the byte array in base BASE to our bignum format.  */
   xsize = mpn_set_str (PTR (x), (unsigned char *) begs, str_size, base);

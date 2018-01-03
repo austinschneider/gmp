@@ -34,6 +34,7 @@ see https://www.gnu.org/licenses/.  */
    should bring it down to perhaps 7 cycles/limb.  */
 
 #include <intrinsics.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 
 mp_limb_t

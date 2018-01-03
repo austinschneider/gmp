@@ -29,6 +29,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 
@@ -52,7 +53,7 @@ cfdiv_q_2exp (mpz_ptr w, mpz_srcptr u, mp_bitcnt_t cnt, int dir)
   if (wsize <= 0)
     {
       /* u < 2**cnt, so result 1, 0 or -1 according to rounding */
-      MPZ_NEWALLOC (w, 1)[0] = 1;
+      PTR(w)[0] = 1;
       SIZ(w) = (usize == 0 || (usize ^ dir) < 0 ? 0 : dir);
       return;
     }

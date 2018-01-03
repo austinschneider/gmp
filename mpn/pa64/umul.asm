@@ -95,3 +95,4 @@ ifdef(`HAVE_ABI_2_0w',
 	bve		(%r2)
 	ldo		-128(%r30),%r30
 EPILOGUE(mpn_umul_ppmm_r)
+

@@ -33,6 +33,7 @@ see https://www.gnu.org/licenses/.  */
    be hard to improve upon, even with assembly code.  */
 
 #include <intrinsics.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 
 mp_limb_t

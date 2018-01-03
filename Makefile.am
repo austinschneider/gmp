@@ -102,11 +102,11 @@
 # libgmpxx.so.3.0.4) incrementing, to make it clear which GMP it's from.
 
 LIBGMP_LT_CURRENT    = 13
-LIBGMP_LT_REVISION   = 0
+LIBGMP_LT_REVISION   = 2
 LIBGMP_LT_AGE        = 3
 
 LIBGMPXX_LT_CURRENT  = 9
-LIBGMPXX_LT_REVISION = 0
+LIBGMPXX_LT_REVISION = 2
 LIBGMPXX_LT_AGE      = 5
 
 
@@ -115,17 +115,15 @@ SUBDIRS = tests mpn mpz mpq mpf printf scanf rand cxx demos tune doc
 EXTRA_DIST = configfsf.guess configfsf.sub .gdbinit INSTALL.autoconf \
 	     COPYING.LESSERv3 COPYINGv2 COPYINGv3
 
-# Put asl.h here for now.
-EXTRA_DIST += asl.h
 
 if WANT_CXX
 GMPXX_HEADERS_OPTION = gmpxx.h
 endif
 EXTRA_DIST += gmpxx.h
 
-# gmp.h is architecture dependent, mainly since it encodes the limb size used
-# in libgmp.  For that reason it belongs under $exec_prefix not $prefix,
-# strictly speaking.
+# gmp.h and mp.h are architecture dependent, mainly since they encode the
+# limb size used in libgmp.  For that reason they belong under $exec_prefix
+# not $prefix, strictly speaking.
 #
 # $exec_prefix/include is not in the default include path for gcc built to
 # the same $prefix and $exec_prefix, which might mean gmp.h is not found,

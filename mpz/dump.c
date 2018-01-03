@@ -35,6 +35,7 @@ see https://www.gnu.org/licenses/.  */
 
 #include <stdio.h>
 #include <string.h> /* for strlen */
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void

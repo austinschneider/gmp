@@ -41,6 +41,7 @@ see https://www.gnu.org/licenses/.  */
 #include <unistd.h>  /* for getpid */
 #endif
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 

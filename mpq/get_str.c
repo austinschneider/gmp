@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/.  */
 
 #include <stdio.h>
 #include <string.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -50,7 +51,7 @@ mpq_get_str (char *str, int base, mpq_srcptr q)
       DIGITS_IN_BASE_PER_LIMB (str_alloc, ABSIZ(NUM(q)) + SIZ(DEN(q)), ABS(base));
       str_alloc += 6;
 
-      str = __GMP_ALLOCATE_FUNC_TYPE (str_alloc, char);
+      str = (char *) (*__gmp_allocate_func) (str_alloc);
     }
 
   mpz_get_str (str, base, mpq_numref(q));

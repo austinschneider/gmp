@@ -20,6 +20,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include <stdio.h>
 #include <stdlib.h>		/* for abort */
 #include <string.h>		/* for memcpy, memcmp */
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "tests.h"
 

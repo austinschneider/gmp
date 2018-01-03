@@ -36,6 +36,7 @@ see https://www.gnu.org/licenses/.  */
 #include <stdio.h>
 #include <string.h>
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 /* SunOS 4 stdio.h doesn't provide a prototype for this */

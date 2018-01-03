@@ -31,4 +31,5 @@ see https://www.gnu.org/licenses/.  */
 
 #define __GMP_FORCE_mpz_set_q 1
 
+#include "gmp.h"
 #include "gmp-impl.h"

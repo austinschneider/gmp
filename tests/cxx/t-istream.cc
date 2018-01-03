@@ -21,6 +21,7 @@ the GNU MP Library test suite.  If not, see https://www.gnu.org/licenses/.  */
 #include <cstdlib>
 #include <cstring>
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "tests.h"
 

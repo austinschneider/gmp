@@ -54,6 +54,7 @@ see https://www.gnu.org/licenses/.  */
                     of the return value.
 */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 struct gmp_primes_dtab {

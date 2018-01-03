@@ -1,7 +1,7 @@
 /* mpz_and -- Logical and.
 
-Copyright 1991, 1993, 1994, 1996, 1997, 2000, 2001, 2003, 2005, 2012,
-2015-2017 Free Software Foundation, Inc.
+Copyright 1991, 1993, 1994, 1996, 1997, 2000, 2001, 2003, 2005, 2012 Free
+Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -29,6 +29,7 @@ You should have received copies of the GNU General Public License and the
 GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void
@@ -45,39 +46,40 @@ mpz_and (mpz_ptr res, mpz_srcptr op1, mpz_srcptr op2)
   op1_size = SIZ(op1);
   op2_size = SIZ(op2);
 
-  if (op1_size < op2_size)
-    {
-      MPZ_SRCPTR_SWAP (op1, op2);
-      MP_SIZE_T_SWAP (op1_size, op2_size);
-    }
-
   op1_ptr = PTR(op1);
   op2_ptr = PTR(op2);
 
-  if (op2_size >= 0)
+  if (op1_size >= 0)
     {
-      res_size = op2_size;
-      /* First loop finds the size of the result.  */
-      for (i = res_size; --i >= 0;)
-	if ((op1_ptr[i] & op2_ptr[i]) != 0)
-	  {
-	    res_size = i + 1;
-	    /* Handle allocation, now then we know exactly how much space is
-	       needed for the result.  */
-	    /* Don't re-read op1_ptr and op2_ptr.  Since res_size <=
-	       MIN(op1_size, op2_size), res is not changed when op1
-	       is identical to res or op2 is identical to res.  */
-	    SIZ (res) = res_size;
-	    mpn_and_n (MPZ_NEWALLOC (res, res_size), op1_ptr, op2_ptr, res_size);
-	    return;
-	  }
+      if (op2_size >= 0)
+	{
+	  res_size = MIN (op1_size, op2_size);
+	  /* First loop finds the size of the result.  */
+	  for (i = res_size - 1; i >= 0; i--)
+	    if ((op1_ptr[i] & op2_ptr[i]) != 0)
+	      break;
+	  res_size = i + 1;
 
-      SIZ (res) = 0;
-      return;
+	  /* Handle allocation, now then we know exactly how much space is
+	     needed for the result.  */
+	  res_ptr = MPZ_REALLOC (res, res_size);
+	  /* Don't re-read op1_ptr and op2_ptr.  Since res_size <=
+	     MIN(op1_size, op2_size), res is not changed when op1
+	     is identical to res or op2 is identical to res.  */
+
+	  SIZ(res) = res_size;
+	  if (LIKELY (res_size != 0))
+	    mpn_and_n (res_ptr, op1_ptr, op2_ptr, res_size);
+	  return;
+	}
+      else /* op2_size < 0 */
+	{
+	  /* Fall through to the code at the end of the function.  */
+	}
     }
   else
     {
-      if (op1_size < 0)
+      if (op2_size < 0)
 	{
 	  mp_ptr opx, opy;
 	  mp_limb_t cy;
@@ -95,6 +97,9 @@ mpz_and (mpz_ptr res, mpz_srcptr op1, mpz_srcptr op2)
 	  op1_size = -op1_size;
 	  op2_size = -op2_size;
 
+	  if (op1_size > op2_size)
+	    MPN_SRCPTR_SWAP (op1_ptr, op1_size, op2_ptr, op2_size);
+
 	  TMP_ALLOC_LIMBS_2 (opx, op1_size, opy, op2_size);
 	  mpn_sub_1 (opx, op1_ptr, op1_size, (mp_limb_t) 1);
 	  op1_ptr = opx;
@@ -102,7 +107,7 @@ mpz_and (mpz_ptr res, mpz_srcptr op1, mpz_srcptr op2)
 	  mpn_sub_1 (opy, op2_ptr, op2_size, (mp_limb_t) 1);
 	  op2_ptr = opy;
 
-	  res_ptr = MPZ_NEWALLOC (res, 1 + op2_size);
+	  res_ptr = MPZ_REALLOC (res, 1 + op2_size);
 	  /* Don't re-read OP1_PTR and OP2_PTR.  They point to temporary
 	     space--never to the space PTR(res) used to point to before
 	     reallocation.  */
@@ -114,12 +119,19 @@ mpz_and (mpz_ptr res, mpz_srcptr op1, mpz_srcptr op2)
 
 	  cy = mpn_add_1 (res_ptr, res_ptr, res_size, (mp_limb_t) 1);
 	  res_ptr[res_size] = cy;
-	  res_size += cy;
+	  res_size += (cy != 0);
 
 	  SIZ(res) = -res_size;
 	  TMP_FREE;
 	  return;
 	}
+      else
+	{
+	  /* We should compute -OP1 & OP2.  Swap OP1 and OP2 and fall
+	     through to the code that handles OP1 & -OP2.  */
+	  MPN_SRCPTR_SWAP (op1_ptr, op1_size, op2_ptr, op2_size);
+	}
+
     }
 
   {
@@ -170,6 +182,8 @@ mpz_and (mpz_ptr res, mpz_srcptr op1, mpz_srcptr op2)
 	  res_ptr[i] = op1_ptr[i] & ~op2_ptr[i];
 	res_ptr[op2_lim] = op1_ptr[op2_lim] & -op2_ptr[op2_lim];
       }
+
+    SIZ(res) = res_size;
 #else
 
     /* OP1 is positive and zero-extended,
@@ -192,37 +206,39 @@ mpz_and (mpz_ptr res, mpz_srcptr op1, mpz_srcptr op2)
 
 	/* Handle allocation, now then we know exactly how much space is
 	   needed for the result.  */
-	res_ptr = MPZ_NEWALLOC (res, res_size);
+	res_ptr = MPZ_REALLOC (res, res_size);
 	/* Don't re-read OP1_PTR or OP2_PTR.  Since res_size = op1_size,
 	   op1 is not changed if it is identical to res.
 	   OP2_PTR points to temporary space.  */
 
-	mpn_andn_n (res_ptr, op1_ptr, op2_ptr, op2_size);
 	MPN_COPY (res_ptr + op2_size, op1_ptr + op2_size, res_size - op2_size);
+	mpn_andn_n (res_ptr, op1_ptr, op2_ptr, op2_size);
+
+	SIZ(res) = res_size;
       }
     else
       {
 	/* Find out the exact result size.  Ignore the high limbs of OP2,
 	   OP1 is zero-extended and would make the result zero.  */
-	res_size = 0;
-	for (i = op1_size; --i >= 0;)
+	for (i = op1_size - 1; i >= 0; i--)
 	  if ((op1_ptr[i] & ~op2_ptr[i]) != 0)
-	    {
-	      res_size = i + 1;
-	      /* Handle allocation, now then we know exactly how much
-		 space is needed for the result.  */
-	      /* Don't re-read OP1_PTR.  Since res_size <= op1_size,
-		 op1 is not changed if it is identical to res.  Don't
-		 re-read OP2_PTR.  It points to temporary space--never
-		 to the space PTR(res) used to point to before
-		 reallocation.  */
-	      mpn_andn_n (MPZ_NEWALLOC (res, res_size), op1_ptr, op2_ptr, res_size);
+	    break;
+	res_size = i + 1;
 
-	      break;
-	    }
+	/* Handle allocation, now then we know exactly how much space is
+	   needed for the result.  */
+	res_ptr = MPZ_REALLOC (res, res_size);
+	/* Don't re-read OP1_PTR.  Since res_size <= op1_size,
+	   op1 is not changed if it is identical to res.
+	   Don't re-read OP2_PTR.  It points to temporary space--never
+	   to the space PTR(res) used to point to before reallocation.  */
+
+	if (LIKELY (res_size != 0))
+	  mpn_andn_n (res_ptr, op1_ptr, op2_ptr, res_size);
+
+	SIZ(res) = res_size;
       }
 #endif
-    SIZ(res) = res_size;
   }
   TMP_FREE;
 }

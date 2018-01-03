@@ -1,6 +1,6 @@
 /* mpz_realloc2 -- change allocated data size.
 
-Copyright 2001, 2002, 2008, 2015 Free Software Foundation, Inc.
+Copyright 2001, 2002, 2008 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -30,6 +30,7 @@ see https://www.gnu.org/licenses/.  */
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "gmp.h"
 #include "gmp-impl.h"
 
 void
@@ -49,19 +50,11 @@ mpz_realloc2 (mpz_ptr m, mp_bitcnt_t bits)
 	}
     }
 
-  if (ALLOC (m) == 0)
-    {
-      PTR (m) = __GMP_ALLOCATE_FUNC_LIMBS (new_alloc);
-    }
-  else
-    {
-      PTR (m) = __GMP_REALLOCATE_FUNC_LIMBS (PTR(m), ALLOC(m), new_alloc);
-
-      /* Don't create an invalid number; if the current value doesn't fit after
-	 reallocation, clear it to 0.  */
-      if (ABSIZ(m) > new_alloc)
-	SIZ(m) = 0;
-    }
-
+  PTR(m) = __GMP_REALLOCATE_FUNC_LIMBS (PTR(m), ALLOC(m), new_alloc);
   ALLOC(m) = new_alloc;
+
+  /* Don't create an invalid number; if the current value doesn't fit after
+     reallocation, clear it to 0.  */
+  if (ABSIZ(m) > new_alloc)
+    SIZ(m) = 0;
 }

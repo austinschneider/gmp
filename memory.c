@@ -31,6 +31,7 @@ see https://www.gnu.org/licenses/.  */
 #include <stdio.h>
 #include <stdlib.h> /* for malloc, realloc, free */
 
+#include "gmp.h"
 #include "gmp-impl.h"
 
 

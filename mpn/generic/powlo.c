@@ -1,6 +1,6 @@
 /* mpn_powlo -- Compute R = U^E mod B^n, where B is the limb base.
 
-Copyright 2007-2009, 2012, 2015, 2016 Free Software Foundation, Inc.
+Copyright 2007-2009, 2012, 2015 Free Software Foundation, Inc.
 
 This file is part of the GNU MP Library.
 
@@ -29,6 +29,7 @@ GNU Lesser General Public License along with the GNU MP Library.  If not,
 see https://www.gnu.org/licenses/.  */
 
 
+#include "gmp.h"
 #include "gmp-impl.h"
 #include "longlong.h"
 
@@ -37,9 +38,9 @@ see https://www.gnu.org/licenses/.  */
   ((p[(bi - 1) / GMP_LIMB_BITS] >> (bi - 1) % GMP_LIMB_BITS) & 1)
 
 static inline mp_limb_t
-getbits (const mp_limb_t *p, mp_bitcnt_t bi, unsigned nbits)
+getbits (const mp_limb_t *p, mp_bitcnt_t bi, int nbits)
 {
-  unsigned nbits_in_r;
+  int nbits_in_r;
   mp_limb_t r;
   mp_size_t i;
 
@@ -60,15 +61,15 @@ getbits (const mp_limb_t *p, mp_bitcnt_t bi, unsigned nbits)
     }
 }
 
-static inline unsigned
+static inline int
 win_size (mp_bitcnt_t eb)
 {
-  unsigned k;
-  static mp_bitcnt_t x[] = {7,25,81,241,673,1793,4609,11521,28161,~(mp_bitcnt_t)0};
+  int k;
+  static mp_bitcnt_t x[] = {1,7,25,81,241,673,1793,4609,11521,28161,~(mp_bitcnt_t)0};
   ASSERT (eb > 1);
-  for (k = 0; eb > x[k]; ++k)
+  for (k = 1; eb > x[k]; ++k)
     ;
-  return k + 1;
+  return k;
 }
 
 /* rp[n-1..0] = bp[n-1..0] ^ ep[en-1..0] mod B^n, B is the limb base.
@@ -81,9 +82,9 @@ mpn_powlo (mp_ptr rp, mp_srcptr bp,
 	   mp_srcptr ep, mp_size_t en,
 	   mp_size_t n, mp_ptr tp)
 {
-  unsigned cnt;
+  int cnt;
   mp_bitcnt_t ebi;
-  unsigned windowsize, this_windowsize;
+  int windowsize, this_windowsize;
   mp_limb_t expbits;
   mp_limb_t *pp, *this_pp, *last_pp;
   long i;
@@ -164,7 +165,7 @@ mpn_powlo (mp_ptr rp, mp_srcptr bp,
 	mpn_sqrlo (tp, rp, n);
       else
 	MPN_COPY (tp, rp, n);
-
+      
       mpn_mullo_n (rp, tp, pp + n * (expbits >> 1), n);
     } while (ebi != 0);
 
